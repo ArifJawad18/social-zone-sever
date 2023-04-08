@@ -24,12 +24,40 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run(){
     try{
         const serviceCollection = client.db('socialZone').collection('services');
+        const orderCollection = client.db('socialZone').collection('orders');
+        const doctorsCollection = client.db('socialZone').collection('doctors');
 
         app.get('/services', async(req, res)=>{
             const query ={}
             const cursor = serviceCollection.find(query);
             const services = await cursor.toArray();
             res.send(services);
+        });
+
+        // orders api
+        app.post('/orders', async(req, res) =>{
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        })
+
+        app.get('/orders', async(req,res) =>{
+            const query ={}
+            const result = await orderCollection.find(query).project({name: 1}).toArray();
+            res.send(result);
+        });
+
+        app.get('/doctors', async(req, res) =>{
+            const query = {};
+            const doctors = await doctorsCollection.find(query).toArray();
+            res.send(doctors);
+        })
+
+
+        app.post('/doctors', async(req, res) =>{
+            const doctor = req.body;
+            const result = await doctorsCollection.insertOne(doctor);
+            res.send(result);
         })
 
     }
